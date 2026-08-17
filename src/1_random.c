@@ -40,5 +40,7 @@ int main(int argc, char *argv[])
 		suma += nota;
 		printf("%.1f, ", nota);
 	}
+	suma = suma/n;
+	printf("\n promedio: %f \n", suma);
 	return 0;
 }
