@@ -1,7 +1,9 @@
-#ifndef COMMONS
+#ifndef PRODUCTOS
+#define PRODUCTOS
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <string.h>
 
 struct _producto {
 	float	precio;
@@ -10,18 +12,8 @@ struct _producto {
 	int     cantidad;
 };
 
-/*
- * const char * protege el contenido de las palabras
- */
-const char  *list_productos[] = {
-	"clavos",
-	"martillo",
-	"destornillador",
-	"taladro",
-	"televisor"
-};
+/* definicion de tipo estructura basada en 'struct _producto' */
+typedef struct _producto producto;
 
-const char dicc[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-
+void inventariar(void);
 #endif

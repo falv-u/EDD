@@ -1,7 +1,9 @@
 **/*.o
 **/*.out
+**/*.run
+**/build/
 **/*.core
 **/*.swp
 **/*.swo
 **/*~
-frutas.csv
+**/*.csv

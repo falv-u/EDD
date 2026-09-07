@@ -1,3 +1,8 @@
+/*
+ * codigo de lo que se hizo en clase para repasar punteros
+ * NOTE: NO OLVIDARME QUE ESTA NO ES TAREA PARA EL 24 DE AGOSTO
+ * REPITO PARA MI, NO ES.
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #define MAX 4
