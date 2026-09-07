@@ -25,5 +25,5 @@ clean:
 	rm -f $(OBJ_FILES)
 	rm -rf build/*
 
-run:
+run: all
 	@./build/$(EXEC)
