@@ -1,0 +1,10 @@
+salida final de valgrind:
+==3330== 
+==3330== HEAP SUMMARY:
+==3330==     in use at exit: 0 bytes in 0 blocks
+==3330==   total heap usage: 14 allocs, 14 frees, 6,705 bytes allocated
+==3330== 
+==3330== All heap blocks were freed -- no leaks are possible
+==3330== 
+==3330== For lists of detected and suppressed errors, rerun with: -s
+==3330== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
