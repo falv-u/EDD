@@ -1,0 +1,56 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-g",
+      "-O3",
+      "-I./inc/",
+      "-c",
+      "-o",
+      "obj/inventory.o",
+      "src/inventory.c"
+    ],
+    "directory": "/home/frani/notas/edd/esqueleto-Tarea4",
+    "file": "/home/frani/notas/edd/esqueleto-Tarea4/src/inventory.c",
+    "output": "/home/frani/notas/edd/esqueleto-Tarea4/obj/inventory.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-g",
+      "-O3",
+      "-I./inc/",
+      "-c",
+      "-o",
+      "obj/main.o",
+      "src/main.c"
+    ],
+    "directory": "/home/frani/notas/edd/esqueleto-Tarea4",
+    "file": "/home/frani/notas/edd/esqueleto-Tarea4/src/main.c",
+    "output": "/home/frani/notas/edd/esqueleto-Tarea4/obj/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-Wpedantic",
+      "-g",
+      "-O3",
+      "-I./inc/",
+      "-c",
+      "-o",
+      "obj/product.o",
+      "src/product.c"
+    ],
+    "directory": "/home/frani/notas/edd/esqueleto-Tarea4",
+    "file": "/home/frani/notas/edd/esqueleto-Tarea4/src/product.c",
+    "output": "/home/frani/notas/edd/esqueleto-Tarea4/obj/product.o"
+  }
+]
