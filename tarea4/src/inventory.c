@@ -39,54 +39,12 @@ Inventory inv_insert(Product P, Inventory I, InventoryElement Position)
 
 Inventory inv_insert_first(Product P, Inventory I)
 {
-	InventoryElement aux;
-	InventoryElement Position;
-	Position = inv_header(I);
-	if (P.name == NULL || P.provider == NULL) {
-		printf("error: producto invalido \n");
-		return I;
-	}
-	aux = malloc(sizeof(struct Node));
-	if (aux == NULL)
-	{
-		printf("error de asigancion de memoria");
-		return I;
-	}
-	aux->product = P;
-	aux->next = (Position->next)->next;
-	aux->prev = Position;
-
-	Position->next = aux;
-	(aux->next)->prev = aux;
-	/* actualizamos el tamano de la lista */
-	I->product.stock++;
-	return I;
+	return inv_insert(P,I, inv_header(I));
 }
 
 Inventory inv_insert_last(Product P, Inventory I)
 {
-	InventoryElement aux;
-	InventoryElement Position;
-	Position = inv_header(I);
-	if (P.name == NULL || P.provider == NULL) {
-		printf("error: producto invalido \n");
-		return I;
-	}
-	aux = malloc(sizeof(struct Node));
-	if (aux == NULL)
-	{
-		printf("error de asigancion de memoria");
-		return I;
-	}
-	aux->product = P;
-	aux->next = Position;
-	aux->prev = (Position->prev)->prev;
-
-	Position->prev = aux;
-	(aux->next)->prev = aux;
-	/* actualizamos el tamano de la lista */
-	I->product.stock++;
-	return I;
+	return inv_insert(P,I, inv_last(I));
 }
 
 Inventory inv_delete(InventoryElement Position, Inventory I)
@@ -94,19 +52,53 @@ Inventory inv_delete(InventoryElement Position, Inventory I)
 	InventoryElement pos_prev;
 	InventoryElement pos_next;
 	if (I == NULL) {
-		printf("error: imprimir lista nula?\n");
-		printf("tambien podemos imprimir hojas en blanco, 150 pesos la unidad\n");
-		return;
+		printf("error: no puedes eliminar elementos de algo sin elementos\n");
+		printf("porque intentas eso, quieres un crash?\n");
+		return I;
 	}
+
+	if (Position == NULL) {
+		printf("error: posicion nula \n");
+		printf("si lees esto de verdad estas buscando a fuerzas un bug\n");
+		return I;
+	}
+	if (Position == inv_header(I)) {
+		printf("error: header no es un producto, no se eliminara\n");
+		return I;
+	}
+	pos_prev = Position->prev;
+	pos_next = Position->next;
+	if ( pos_prev == NULL || pos_next == NULL) {
+		printf("una posicion adyacente es invalida (NULL) \n");
+		printf("si lees esto, DE VERAS QUE QUIERE QUE MI PROGRAMA EXPLOTE O ALGO?! \n");
+	}
+	pos_prev->next = pos_next;
+	pos_next->prev = pos_prev;
+
+	I->product.stock--;
+	prod_delete(Position->product);
+	free(Position);
+	return I;
+}
+Product *inv_retrieve(InventoryElement Position, Inventory I)
+{
 
 	if (I == NULL) {
-		printf("error: imprimir lista nula?\n");
-		printf("tambien podemos imprimir hojas en blanco, 150 pesos la unidad\n");
-		return;
+		printf("error: no puedes buscar  elementos de algo sin elementos\n");
+		printf("porque intentas eso, si quieres core dumped lo puedo imprimir a mano\n");
+		return NULL;
 	}
-
-
-	return I;
+	
+	if (Position == NULL) {
+		printf("error: posicion nula\n");
+		printf("deja vu, en serio porfis si sigues asi a fuerzas encontraras un bug\n");
+		return NULL;
+	}
+	if ( Position == inv_header(I)) {
+		printf("error: header no contiene productos reales");
+		return NULL;
+	}
+	return &Position->product;
 }
 
 void inv_print(Inventory I)
@@ -173,11 +165,12 @@ InventoryElement inv_backward(InventoryElement Position)
 Inventory inv_make_empty(Inventory I)
 {
 	if(I != NULL)
-		return I;
+		inv_destroy(I);
 
 	I = malloc(sizeof(struct Node));
 	if (I == NULL) {
 		printf("error: sin memoria\n");
+		return NULL;
 	}
 
 	I->next = I;
@@ -205,6 +198,7 @@ void inv_destroy(Inventory I)
 	while (ptr_actual != ptr_header) {
 		ptr_actual = inv_forward(ptr_actual);
 		ptr_de = inv_backward(ptr_actual);
+		prod_delete(ptr_de->product);
 		free(ptr_de);
 	}
 	free(ptr_header);
@@ -223,16 +217,17 @@ int inv_is_empty(Inventory I)
 int inv_is_last(InventoryElement Position, Inventory I)
 {
 
-	if (Position->next == NULL || Position->prev == NULL || Position == NULL) {
+	if (Position == NULL || Position->next == NULL || Position->prev == NULL ) {
 		printf("error: algo ha pasado, direccion(es) invalida(s)\n");
 		printf("error: seguro que el inventario es circular?\n");
 		return 0;
 	}
-	/* 
-	 * doble check por si 
-	 * ocurre un error de logica respecto a la lista circular
-	 */
-	if ( Position->next == inv_header(I) && (Position->next)->next == inv_first(I))
+	if (Position == inv_header(I)) {
+		printf("el centinela no es un elemento util");
+		return 0;
+	}
+
+	if (Position->next == inv_header(I))
 		return 1;
 	printf("la posicion dada no es la ultima \n");
 	return 0;
@@ -265,6 +260,12 @@ Product *inv_find_by_name(char *name, Inventory I)
 	pasadas = 0;
 	while(1) {
 		pasadas++;
+		if (ptr_next == ptr_prev && strcmp(name, ptr_next->product.name) == 0) {
+			printf("se encontro '%s' en la pasada: [%d]\n", name, pasadas);
+			printf("encontrada por busqueda: ambos...retornando next\n");
+			p = &ptr_next->product;
+			break;
+		}
 		if ( ptr_next != ptr_header && strcmp(name, ptr_next->product.name) == 0 ) {
 			printf("se encontro '%s' en la pasada: [%d]\n", name, pasadas);
 			printf("encontrada por busqueda: next \n");
@@ -285,14 +286,14 @@ Product *inv_find_by_name(char *name, Inventory I)
 
 		if (ptr_next == ptr_prev && strcmp(name, ptr_next->product.name) != 0 ) {
 			printf("se han cruzado las busquedas, al parecer no hay coincidencias\n");
-			printf("esto paso en la pasada numero [%d] para buscar '%s'", pasadas, name);
+			printf("esto paso en la pasada numero [%d] para buscar '%s'\n", pasadas, name);
 			p = NULL;
 			break;
 		}
-		if (ptr_next == ptr_prev && strcmp(name, ptr_next->product.name) == 0) {
-			printf("se encontro '%s' en la pasada: [%d]\n", name, pasadas);
-			printf("encontrada por busqueda: ambos...retornando next\n");
-			p = &ptr_next->product;
+		if (ptr_next->next == ptr_prev) {
+			printf("se han cruzado las busquedas, al parecer no hay coincidencias\n");
+			printf("esto paso en la pasada numero [%d] para buscar '%s'\n", pasadas, name);
+			p = NULL;
 			break;
 		}
 		ptr_next=ptr_next->next;
