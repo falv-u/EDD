@@ -71,6 +71,7 @@ Inventory inv_delete(InventoryElement Position, Inventory I)
 	if ( pos_prev == NULL || pos_next == NULL) {
 		printf("una posicion adyacente es invalida (NULL) \n");
 		printf("si lees esto, DE VERAS QUE QUIERE QUE MI PROGRAMA EXPLOTE O ALGO?! \n");
+		return I;
 	}
 	pos_prev->next = pos_next;
 	pos_next->prev = pos_prev;
@@ -178,6 +179,8 @@ Inventory inv_make_empty(Inventory I)
 
 	/* usaremos el stack del centinela para almacenar el tamano de la lista */
 	I->product.stock = 0;
+	I->product.name = NULL;
+	I->product.provider = NULL;
 	return I;
 }
 
@@ -275,12 +278,6 @@ Product *inv_find_by_name(char *name, Inventory I)
 			printf("se encontro '%s' en la pasada: [%d]\n", name, pasadas);
 			printf("encontrada por busqueda: prev \n");
 			p = &ptr_prev->product;
-			break;
-		}
-
-		if (ptr_next == ptr_header || ptr_prev == ptr_header) {
-			printf("no se encontro el elemento. \n");
-			p = NULL;
 			break;
 		}
 
