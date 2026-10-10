@@ -12,7 +12,7 @@ DEP_FILES=$(OBJ_FILES:.o=.d)
 INCLUDE=-I./inc/
 # LIBS= -lm
 
-CFLAGS=-Wall -Wextra -Wpedantic -g -O3
+CFLAGS=-Wall -Wextra -Wpedantic -g -O2
 LDFLAGS=
 
 all: $(BUILD_DIR)/$(EXEC)
