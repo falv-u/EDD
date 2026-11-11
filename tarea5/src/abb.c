@@ -43,35 +43,37 @@
  */
 SearchTree abb_insert(Product P, SearchTree T)
 {
-	if ( P.name == NULL || P.provider == NULL ) {
-		fprintf(stderr, "Error: producto con cadenas invalidas\n");
-		return T;
-	}
-	
-	if ( T == NULL) {
-		T = malloc(sizeof(struct Node));
-		if ( T == NULL ) {
-			fprintf(stderr, "Error: falla la asignacion de memoria del arbol\n");
-		}
-		T->product = P;
-		T->right = NULL;
-		T->left = NULL;
-		return T;
-	}
-	
-	if ( P.price == abb_position_get_price(T) ) {
-		fprintf(stderr, "Error: precio igual, liberando producto\n");
-		prod_delete(P);
-		return T;
-	}
-	
-	if ( P.price > abb_position_get_price(T) ) {
-		T->right = abb_insert(P, T->right);
-		return T;
-	} else {
-		T->left = abb_insert(P, T->left);
-		return T;
-	} 
+    if ( P.name == NULL || P.provider == NULL ) {
+        fprintf(stderr, "Error: producto con cadenas invalidas\n");
+        prod_delete(P);
+        return T;
+    }
+
+    if ( T == NULL ) {
+        T = malloc(sizeof(struct Node));
+        if ( T == NULL ) {
+            fprintf(stderr, "Error: falla la asignacion de memoria del arbol\n");
+            prod_delete(P);
+            return NULL;
+        }
+        T->product = P;
+        T->left = NULL;
+        T->right = NULL;
+        return T;
+    }
+
+    if ( P.price == abb_position_get_price(T) ) {
+        fprintf(stderr, "Error: precio igual, liberando producto\n");
+        prod_delete(P);
+        return T;
+    }
+
+    if ( P.price > abb_position_get_price(T) )
+        T->right = abb_insert(P, T->right);
+    else
+        T->left = abb_insert(P, T->left);
+
+    return T;
 }
 //==============================================================================
 //        FUNCIONES DE BÚSQUEDA
@@ -93,24 +95,15 @@ SearchTree abb_insert(Product P, SearchTree T)
  */
 Position abb_find(float price, SearchTree T)
 {
-	if ( T == NULL ) {
-		fprintf(stderr, "Error: Arbol nulo\n");
-		return NULL;
-	}
-	if ( T->left && !T->right && abb_position_get_price(T) != price ) {
-		fprintf(stderr, "Error: producto no encontrado \n");
-		return NULL;
-	}
-	if ( abb_position_get_price(T) == price ) {
-		return T;
-	}
-
-	if ( price > abb_position_get_price(T)) {
-		return abb_find(price, T->left);
-	} else if ( price < abb_position_get_price(T))
-		return abb_find(price, T->right);
-	
-	return T;
+    if ( T == NULL ) {
+        fprintf(stderr, "Error: producto con precio %.2f no encontrado\n", price);
+        return NULL;
+    }
+    if ( price == abb_position_get_price(T) )
+        return T;
+    if ( price < abb_position_get_price(T) )
+        return abb_find(price, T->left);
+    return abb_find(price, T->right);
 }
 
 /**
@@ -169,13 +162,32 @@ Position abb_find_max(SearchTree T)
  */
 void abb_print_inorder(SearchTree T)
 {
-	if ( T == NULL ) {
-		fprintf(stderr, "error: Arbol NULL\n");
+	if ( T == NULL )
 		return;
-	}
+
 	abb_print_inorder(T->left);
-	printf("%s [%f]", T->product.name, T->product.price);
+	printf("%s [%.2f]\n", T->product.name, T->product.price);
 	abb_print_inorder(T->right);
+}
+
+void abb_print_preorder(SearchTree T)
+{
+	if ( T == NULL )
+		return;
+
+	printf("%s [%.2f]\n", T->product.name, T->product.price);
+	abb_print_preorder(T->left);
+	abb_print_preorder(T->right);
+}
+
+void abb_print_postorder(SearchTree T)
+{
+	if ( T == NULL )
+		return;
+
+	abb_print_postorder(T->left);
+	abb_print_postorder(T->right);
+	printf("%s [%.2f]\n", T->product.name, T->product.price);
 }
 
 //==============================================================================
@@ -208,7 +220,80 @@ SearchTree abb_delete_tree(SearchTree T)
 	
 
 }
+/**
+ * @brief Elimina del ABB el producto que tiene un precio determinado
+ *
+ * Busca el nodo cuyo producto tiene el precio indicado y lo elimina,
+ * liberando la memoria del producto y del nodo. Retorna el arbol que queda,
+ * que puede tener una raiz distinta (si se elimino la raíz) o quedar sin nada.
+ *
+ * Se distinguen tres casos  de eliminacin en un ABB:
+ *  - Nodo hoja: se libera y se retorna NULL.
+ *  - Nodo con un solo hijo: se retorna ese hijo (el abuelo lo enlaza).
+ *  - Nodo con dos hijos: se intercambia el producto del nodo con el de su
+ *    sucesor inorder y se elimina el nodo
+ *    del sucesor, que ahora contiene el producto original. Así se mantiene
+ *    la propiedad de ABB y cada nodo sigue siendo dueño de sus strings.
+ *
+ * Si el precio no existe, se avisa por pantalla y el arbol queda intacto.
+ * Si el árbol está vacío, también se avisa y se retorna NULL.
+ *
+ * @param price Precio del producto a eliminar
+ * @param T ABB donde se elimina
+ * @return SearchTree Árbol resultante (puede ser NULL o tener otra raíz)
+ */
+SearchTree abb_delete_price(float price, SearchTree T)
+{
+	Position succ;
+	Product tmp;
 
+	if ( T == NULL ) {
+		fprintf(stderr, "Error: producto con precio %.2f no encontrado\n", price);
+		return NULL;
+	}
+
+	if ( price < abb_position_get_price(T) ) {
+		T->left = abb_delete_price(price, T->left);
+		return T;
+	}
+	if ( price > abb_position_get_price(T) ) {
+		T->right = abb_delete_price(price, T->right);
+		return T;
+	}
+
+	/* T es el nodo a eliminar */
+
+	/* Caso 1: hoja */
+	if ( T->left == NULL && T->right == NULL ) {
+		prod_delete(T->product);
+		free(T);
+		return NULL;
+	}
+
+	/* Caso 2: un solo hijo */
+	if ( T->left == NULL ) {
+		Position right = T->right;
+		prod_delete(T->product);
+		free(T);
+		return right;
+	}
+	if ( T->right == NULL ) {
+		Position left = T->left;
+		prod_delete(T->product);
+		free(T);
+		return left;
+	}
+
+	/* Caso 3: dos hijos -> intercambiar con el sucesor inorder y eliminarlo */
+	succ = abb_find_min(T->right);
+	tmp = T->product;
+	T->product = succ->product;
+	succ->product = tmp;
+
+	/* Ahora el producto original de T está en succ; se borra por su precio */
+	T->right = abb_delete_price(tmp.price, T->right);
+	return T;
+}
 //==============================================================================
 //        FUNCIONES AUXILIARES
 //==============================================================================

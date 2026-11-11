@@ -49,12 +49,12 @@ Position abb_find_max(SearchTree T);
 //==============================================================================
 void abb_print_inorder(SearchTree T);
 void abb_print_preorder(SearchTree T);
-void abb_print_posorder(SearchTree T);
+void abb_print_postorder(SearchTree T);
 //==============================================================================
 //        FUNCIONES DE ELIMINACIÓN
 //==============================================================================
 SearchTree abb_delete_tree(SearchTree T);
-
+SearchTree abb_delete_price(float price, SearchTree T);
 //==============================================================================
 //        FUNCIONES AUXILIARES
 //==============================================================================
